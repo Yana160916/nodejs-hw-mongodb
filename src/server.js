@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import pino from 'pino-http';
 import { getAllStudents, getStudentById } from './services/contacts.js';
+import mongoose from 'mongoose';
 
 export const setupServer = () => {
   const app = express();
@@ -41,25 +42,25 @@ export const setupServer = () => {
 
   app.get('/students/:studentId', async (req, res) => {
     const { studentId } = req.params;
-    try {
-      const student = await getStudentById(studentId);
-      if (!student) {
-        return res.status(404).json({
-          status: 'error',
-          message: `Student with id ${studentId} not found`,
-        });
-      }
-      res.status(200).json({
-        status: 'success',
-        message: `Successfully found student with id ${studentId}!`,
-        data: student,
-      });
-    } catch (error) {
-      res.status(500).json({
-        status: 'error',
-        message: `Error fetching student: ${error.message}`,
+    if (!mongoose.Types.ObjectId.isValid(studentId)) {
+      return res.status(404).json({
+        status: 404,
+        message: `Student with id ${studentId} not found`,
       });
     }
+    const student = await getStudentById(studentId);
+
+    if (!student) {
+      return res.status(404).json({
+        status: 404,
+        message: `Student with id ${studentId} not found`,
+      });
+    }
+    res.status(200).json({
+      status: 200,
+      message: `Successfully found student with id ${studentId}!`,
+      data: student,
+    });
   });
 
   app.use('*', (req, res) => {
