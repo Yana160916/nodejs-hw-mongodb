@@ -31,10 +31,10 @@ export const setupServer = () => {
         message: 'Successfully found students!',
         data: students,
       });
-    } catch {
+    } catch (error) {
       res.status(500).json({
         status: 'error',
-        message: 'Error fetching students',
+        message: `Error fetching students: ${error.message}`,
       });
     }
   });
@@ -54,10 +54,10 @@ export const setupServer = () => {
         message: `Successfully found student with id ${studentId}!`,
         data: student,
       });
-    } catch {
+    } catch (error) {
       res.status(500).json({
         status: 'error',
-        message: 'Error fetching student',
+        message: `Error fetching student: ${error.message}`,
       });
     }
   });
