@@ -1,6 +1,6 @@
 import { model, Schema } from 'mongoose';
 
-const studentSchema = new Schema(
+const contactSchema = new Schema(
   {
     name: {
       type: String,
@@ -16,12 +16,10 @@ const studentSchema = new Schema(
     },
     isFavourite: {
       type: Boolean,
-      required: true,
       default: false,
     },
     contactType: {
       type: String,
-      required: true,
       enum: ['work', 'home', 'personal'],
       default: 'personal',
     },
@@ -32,4 +30,4 @@ const studentSchema = new Schema(
   },
 );
 
-export const StudentsCollection = model('Student', studentSchema);
+export const ContactsCollection = model('contacts', contactSchema);

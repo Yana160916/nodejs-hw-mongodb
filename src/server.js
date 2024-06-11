@@ -1,11 +1,12 @@
 import express from 'express';
-import cors from 'cors';
 import pino from 'pino-http';
-import { getAllStudents, getStudentById } from './services/contacts.js';
-import mongoose from 'mongoose';
+import cors from 'cors';
+import { getAllContacts, getContactById } from './services/contacts.js';
 
 export const setupServer = () => {
   const app = express();
+
+  app.set('etag', false);
 
   app.use(express.json());
   app.use(cors());
@@ -18,55 +19,36 @@ export const setupServer = () => {
     }),
   );
 
-  app.get('/', (req, res) => {
-    res.json({
-      message: 'Hello world!',
-    });
-  });
-
-  app.get('/students', async (req, res) => {
-    try {
-      const students = await getAllStudents();
-      res.status(200).json({
-        status: 'success',
-        message: 'Successfully found students!',
-        data: students,
-      });
-    } catch (error) {
-      res.status(500).json({
-        status: 'error',
-        message: `Error fetching students: ${error.message}`,
-      });
-    }
-  });
-
-  app.get('/students/:studentId', async (req, res) => {
-    const { studentId } = req.params;
-    if (!mongoose.Types.ObjectId.isValid(studentId)) {
-      return res.status(404).json({
-        status: 404,
-        message: `Student with id ${studentId} not found`,
-      });
-    }
-    const student = await getStudentById(studentId);
-
-    if (!student) {
-      return res.status(404).json({
-        status: 404,
-        message: `Student with id ${studentId} not found`,
-      });
-    }
+  app.get('/contacts', async (req, res) => {
+    const contacts = await getAllContacts();
     res.status(200).json({
-      status: 200,
-      message: `Successfully found student with id ${studentId}!`,
-      data: student,
+      data: contacts,
+      message: 'Successfully found contacts!',
     });
   });
 
-  app.use('*', (req, res) => {
-    res.status(404).json({
-      message: 'Not found',
+  app.get('/contacts/:contactId', async (req, res) => {
+    const { contactId: id } = req.params;
+    const contact = await getContactById(id);
+
+    if (!contact) {
+      return res.status(404).json({ message: 'Contact not found!' });
+    }
+
+    res.status(200).json({
+      data: contact,
+      message: `Successfully found contact with id ${id}!`,
     });
+  });
+
+  app.use((req, res) => {
+    res.status(404).json({ message: 'Not found' });
+  });
+
+  app.use((err, req, res) => {
+    res
+      .status(500)
+      .json({ message: 'Something went wrong', error: err.message });
   });
 
   const PORT = process.env.PORT || 3000;
