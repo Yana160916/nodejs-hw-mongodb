@@ -40,25 +40,25 @@ export const setupServer = () => {
     }
   });
 
-  app.get('/students/:studentsId', async (req, res) => {
-    const { students_Id } = req.params;
-    if (!mongoose.Types.ObjectId.isValid(students_Id)) {
+  app.get('/students/:studentId', async (req, res) => {
+    const { studentId } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(studentId)) {
       return res.status(404).json({
         status: 404,
-        message: `Student with id ${students_Id} not found`,
+        message: `Student with id ${studentId} not found`,
       });
     }
-    const student = await getStudentById(students_Id);
+    const student = await getStudentById(studentId);
 
     if (!student) {
       return res.status(404).json({
         status: 404,
-        message: `Student with id ${students_Id} not found`,
+        message: `Student with id ${studentId} not found`,
       });
     }
     res.status(200).json({
       status: 200,
-      message: `Successfully found student with id ${students_Id}!`,
+      message: `Successfully found student with id ${studentId}!`,
       data: student,
     });
   });
