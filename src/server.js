@@ -20,35 +20,59 @@ export const setupServer = () => {
   );
 
   app.get('/contacts', async (req, res) => {
-    const contacts = await getAllContacts();
-    res.status(200).json({
-      data: contacts,
-      message: 'Successfully found contacts!',
-    });
+    try {
+      const contacts = await getAllContacts();
+      res.status(200).json({
+        status: 'success',
+        message: 'Successfully found contacts!',
+        data: contacts,
+      });
+    } catch (error) {
+      res.status(500).json({
+        status: 'error',
+        message: `Error fetching contacts: ${error.message}`,
+      });
+    }
   });
 
   app.get('/contacts/:contactId', async (req, res) => {
     const { contactId: id } = req.params;
-    const contact = await getContactById(id);
+    try {
+      const contact = await getContactById(id);
 
-    if (!contact) {
-      return res.status(404).json({ message: 'Contact not found!' });
+      if (!contact) {
+        return res.status(404).json({
+          status: 'error',
+          message: 'Contact not found!',
+        });
+      }
+
+      res.status(200).json({
+        status: 'success',
+        message: `Successfully found contact with id ${id}!`,
+        data: contact,
+      });
+    } catch (error) {
+      res.status(500).json({
+        status: 'error',
+        message: `Error fetching contact: ${error.message}`,
+      });
     }
-
-    res.status(200).json({
-      data: contact,
-      message: `Successfully found contact with id ${id}!`,
-    });
   });
 
   app.use((req, res) => {
-    res.status(404).json({ message: 'Not found' });
+    res.status(404).json({
+      status: 'error',
+      message: 'Not found',
+    });
   });
 
   app.use((err, req, res) => {
-    res
-      .status(500)
-      .json({ message: 'Something went wrong', error: err.message });
+    res.status(500).json({
+      status: 'error',
+      message: 'Something went wrong',
+      error: err.message,
+    });
   });
 
   const PORT = process.env.PORT || 3000;
