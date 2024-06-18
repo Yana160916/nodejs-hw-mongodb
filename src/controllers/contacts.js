@@ -1,5 +1,5 @@
 import createHttpError from 'http-errors';
-import { ContactsCollection } from '../db/models/Contact.js';
+import { ContactsCollection } from '../db/models/contact.js';
 
 export const createContactController = async (req, res, next) => {
   const { name, phoneNumber, email, isFavourite, contactType } = req.body;
@@ -15,7 +15,7 @@ export const createContactController = async (req, res, next) => {
 
     res.status(201).json({
       status: 201,
-      message: 'Successfully created a contact!',
+      message: 'Successfully created a contact',
       data: newContact,
     });
   } catch (error) {
@@ -28,9 +28,9 @@ export const patchContactController = async (req, res, next) => {
   const { name, phoneNumber, email, isFavourite, contactType } = req.body;
 
   try {
-    const updatedContact = await ContactsCollection.findOneAndUpdate(
-      { _id: contactId },
-      { $set: { name, phoneNumber, email, isFavourite, contactType } },
+    const updatedContact = await ContactsCollection.findByIdAndUpdate(
+      contactId,
+      { name, phoneNumber, email, isFavourite, contactType },
       { new: true },
     );
 
@@ -38,7 +38,7 @@ export const patchContactController = async (req, res, next) => {
       return next(createHttpError(404, 'Contact not found'));
     }
 
-    res.json({
+    res.status(200).json({
       status: 200,
       message: 'Successfully patched a contact!',
       data: updatedContact,
@@ -52,9 +52,9 @@ export const deleteContactController = async (req, res, next) => {
   const { contactId } = req.params;
 
   try {
-    const deletedContact = await ContactsCollection.findOneAndDelete({
-      _id: contactId,
-    });
+    const deletedContact = await ContactsCollection.findByIdAndDelete(
+      contactId,
+    );
 
     if (!deletedContact) {
       return next(createHttpError(404, 'Contact not found'));
