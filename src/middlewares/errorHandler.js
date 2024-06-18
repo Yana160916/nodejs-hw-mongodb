@@ -1,16 +1,13 @@
-import { HttpError } from 'http-errors';
+import createError from 'http-errors';
 
-export const errorHandler = (err, req, res) => {
-  if (err instanceof HttpError) {
-    res.status(err.status).json({
-      status: err.status,
-      message: err.message,
-    });
-  } else {
-    res.status(500).json({
-      status: 500,
-      message: 'Something went wrong',
-      error: err.message,
-    });
-  }
+export const setupErrorHandler = (err, req, res) => {
+  res.status(err.status || 500).json({
+    status: res.statusCode,
+    message: 'Something went wrong',
+    data: err.message,
+  });
+};
+
+export const setupNotFoundHandler = (req, res, next) => {
+  next(createError(404, 'Route not found'));
 };
