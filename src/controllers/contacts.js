@@ -1,95 +1,88 @@
-import createError from 'http-errors';
 import {
-  getAllContacts as fetchAllContacts,
-  getContactById as fetchContactById,
-  createNewContact,
-  updateExistingContact,
-  deleteExistingContact,
+  getAllContacts,
+  getContactById,
+  createContact,
+  updateContact,
+  deleteContact,
 } from '../services/contacts.js';
+import createHttpError from 'http-errors';
 
-export const getAllContacts = async (req, res, next) => {
+export const getContactsController = async (req, res, next) => {
   try {
-    const contacts = await fetchAllContacts();
-    res.status(200).json({
-      status: res.statusCode,
+    const contacts = await getAllContacts();
+
+    res.json({
+      status: 200,
       message: 'Successfully found contacts!',
       data: contacts,
     });
-  } catch (error) {
-    next(error);
+  } catch (err) {
+    next(err);
   }
 };
 
-export const getContactById = async (req, res, next) => {
+export const getContactByIdController = async (req, res, next) => {
   const { contactId } = req.params;
   try {
-    const contact = await fetchContactById(contactId);
+    const contact = await getContactById(contactId);
+
     if (!contact) {
-      throw createError(404, 'Contact not found');
+      next(createHttpError(404, 'Contact not found'));
+      return;
     }
-    res.status(200).json({
-      status: res.statusCode,
+
+    res.json({
+      status: 200,
       message: `Successfully found contact with id ${contactId}!`,
       data: contact,
     });
-  } catch (error) {
-    next(error);
+  } catch (err) {
+    next(err);
   }
 };
 
-export const createContact = async (req, res, next) => {
-  const { name, phoneNumber, email, isFavourite, contactType } = req.body;
+export const createContactController = async (req, res, next) => {
   try {
-    const newContact = await createNewContact({
-      name,
-      phoneNumber,
-      email,
-      isFavourite,
-      contactType,
-    });
+    const contact = await createContact(req.body);
     res.status(201).json({
-      status: res.statusCode,
+      status: 201,
       message: 'Successfully created a contact!',
-      data: newContact,
+      data: contact,
     });
-  } catch (error) {
-    next(error);
+  } catch (err) {
+    next(err);
   }
 };
 
-export const updateContact = async (req, res, next) => {
+export const deleteContactController = async (req, res, next) => {
   const { contactId } = req.params;
-  const { name, phoneNumber, email, isFavourite, contactType } = req.body;
-  try {
-    const updatedContact = await updateExistingContact(contactId, {
-      name,
-      phoneNumber,
-      email,
-      isFavourite,
-      contactType,
-    });
-    if (!updatedContact) {
-      throw createError(404, 'Contact not found');
-    }
-    res.status(200).json({
-      status: res.statusCode,
-      message: 'Successfully patched a contact!',
-      data: updatedContact,
-    });
-  } catch (error) {
-    next(error);
+
+  const contact = await deleteContact(contactId);
+
+  if (!contact) {
+    next(createHttpError(404, 'Contact not found'));
+    return;
   }
+
+  res.status(204).send();
 };
 
-export const deleteContact = async (req, res, next) => {
+export const patchContactController = async (req, res, next) => {
   const { contactId } = req.params;
   try {
-    const deletedContact = await deleteExistingContact(contactId);
-    if (!deletedContact) {
-      throw createError(404, 'Contact not found');
+    const result = await updateContact(contactId, req.body);
+
+    if (!result) {
+      next(createHttpError(404, 'Contact not found'));
+      return;
     }
-    res.status(204).send();
-  } catch (error) {
-    next(error);
+
+    res.json({
+      status: 200,
+      message: `Successfully patched a contact!`,
+      data: result.contact,
+    });
+  } catch (err) {
+    next(err);
   }
 };

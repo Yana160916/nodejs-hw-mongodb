@@ -1,36 +1,41 @@
 import { ContactsCollection } from '../db/models/Contact.js';
+import createHttpError from 'http-errors';
 
-export const createNewContact = async ({
-  name,
-  phoneNumber,
-  email,
-  isFavourite,
-  contactType,
-}) => {
-  const newContact = new ContactsCollection({
+export const getAllContacts = async () => {
+  const contacts = await ContactsCollection.find();
+  return contacts;
+};
+
+export const getContactById = async (id) => {
+  const contact = await ContactsCollection.findById(id);
+  return contact;
+};
+
+export const createContact = async (payload) => {
+  const { name, phoneNumber, email, isFavourite, contactType } = payload;
+
+  if (!name || !phoneNumber) {
+    throw createHttpError(400, 'Name and phone number are required');
+  }
+
+  const contact = new ContactsCollection({
     name,
     phoneNumber,
     email,
     isFavourite,
     contactType,
   });
-  await newContact.save();
-  return newContact;
+
+  await contact.save();
+  return contact;
 };
 
-export const updateExistingContact = async (
-  id,
-  { name, phoneNumber, email, isFavourite, contactType },
-) => {
-  const updatedContact = await ContactsCollection.findByIdAndUpdate(
-    id,
-    { name, phoneNumber, email, isFavourite, contactType },
-    { new: true },
-  );
-  return updatedContact;
-};
+export const deleteContact = async (contactId) => {
+  const deletedContact = await ContactsCollection.findByIdAndDelete(contactId);
 
-export const deleteExistingContact = async (id) => {
-  const deletedContact = await ContactsCollection.findByIdAndDelete(id);
+  if (!deletedContact) {
+    throw createHttpError(404, 'Contact not found');
+  }
+
   return deletedContact;
 };
