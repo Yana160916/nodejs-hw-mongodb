@@ -7,7 +7,7 @@ import {
 } from '../services/contacts.js';
 import createHttpError from 'http-errors';
 
-export const getContactsController = async (req, res, next) => {
+export const getAllContactsController = async (req, res, next) => {
   try {
     const contacts = await getAllContacts();
 
