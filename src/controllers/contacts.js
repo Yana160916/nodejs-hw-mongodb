@@ -1,7 +1,7 @@
 import createError from 'http-errors';
 import {
-  getAllContacts,
-  getContactById,
+  getAllContacts as fetchAllContacts,
+  getContactById as fetchContactById,
   createNewContact,
   updateExistingContact,
   deleteExistingContact,
