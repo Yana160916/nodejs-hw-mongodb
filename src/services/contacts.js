@@ -40,22 +40,11 @@ export const deleteContact = async (contactId) => {
   return deletedContact;
 };
 
-export const updateContact = async (contactId, payload, options = {}) => {
-  const { name, phoneNumber, email, isFavourite, contactType } = payload;
-
+export const updateContact = async (contactId, payload) => {
   const updatedContact = await ContactsCollection.findByIdAndUpdate(
     contactId,
-    {
-      name,
-      phoneNumber,
-      email,
-      isFavourite,
-      contactType,
-    },
-    {
-      new: true,
-      ...options,
-    },
+    payload,
+    { new: true },
   );
 
   if (!updatedContact) {
