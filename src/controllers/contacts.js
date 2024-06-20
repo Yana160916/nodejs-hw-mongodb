@@ -6,6 +6,9 @@ import {
   deleteContact,
 } from '../services/contacts.js';
 import createHttpError from 'http-errors';
+import mongoose from 'mongoose';
+
+const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
 
 export const getAllContactsController = async (req, res, next) => {
   try {
@@ -23,6 +26,11 @@ export const getAllContactsController = async (req, res, next) => {
 
 export const getContactByIdController = async (req, res, next) => {
   const { contactId } = req.params;
+
+  if (!isValidObjectId(contactId)) {
+    return next(createHttpError(400, 'Invalid contact ID'));
+  }
+
   try {
     const contact = await getContactById(contactId);
 
@@ -57,18 +65,31 @@ export const createContactController = async (req, res, next) => {
 export const deleteContactController = async (req, res, next) => {
   const { contactId } = req.params;
 
-  const contact = await deleteContact(contactId);
-
-  if (!contact) {
-    next(createHttpError(404, 'Contact not found'));
-    return;
+  if (!isValidObjectId(contactId)) {
+    return next(createHttpError(400, 'Invalid contact ID'));
   }
 
-  res.status(204).send();
+  try {
+    const contact = await deleteContact(contactId);
+
+    if (!contact) {
+      next(createHttpError(404, 'Contact not found'));
+      return;
+    }
+
+    res.status(204).send();
+  } catch (err) {
+    next(err);
+  }
 };
 
 export const patchContactController = async (req, res, next) => {
   const { contactId } = req.params;
+
+  if (!isValidObjectId(contactId)) {
+    return next(createHttpError(400, 'Invalid contact ID'));
+  }
+
   try {
     const updatedContact = await updateContact(contactId, req.body);
 

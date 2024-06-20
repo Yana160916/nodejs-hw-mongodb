@@ -1,5 +1,8 @@
 import { ContactsCollection } from '../db/models/Contact.js';
 import createHttpError from 'http-errors';
+import mongoose from 'mongoose';
+
+const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
 
 export const getAllContacts = async () => {
   const contacts = await ContactsCollection.find();
@@ -7,6 +10,10 @@ export const getAllContacts = async () => {
 };
 
 export const getContactById = async (id) => {
+  if (!isValidObjectId(id)) {
+    throw createHttpError(400, 'Invalid contact ID');
+  }
+
   const contact = await ContactsCollection.findById(id);
   return contact;
 };
@@ -31,6 +38,10 @@ export const createContact = async (payload) => {
 };
 
 export const deleteContact = async (contactId) => {
+  if (!isValidObjectId(contactId)) {
+    throw createHttpError(400, 'Invalid contact ID');
+  }
+
   const deletedContact = await ContactsCollection.findByIdAndDelete(contactId);
 
   if (!deletedContact) {
@@ -41,6 +52,10 @@ export const deleteContact = async (contactId) => {
 };
 
 export const updateContact = async (contactId, payload) => {
+  if (!isValidObjectId(contactId)) {
+    throw createHttpError(400, 'Invalid contact ID');
+  }
+
   const updatedContact = await ContactsCollection.findByIdAndUpdate(
     contactId,
     payload,
