@@ -56,15 +56,18 @@ export const updateContact = async (contactId, payload) => {
     throw createHttpError(400, 'Invalid contact ID');
   }
 
-  const updatedContact = await ContactsCollection.findByIdAndUpdate(
-    contactId,
+  const rawResult = await ContactsCollection.findOneAndUpdate(
+    { _id: contactId },
     payload,
-    { new: true },
+    { new: true, includeResultMetadata: true },
   );
 
-  if (!updatedContact) {
+  if (!rawResult || !rawResult.value) {
     throw createHttpError(404, 'Contact not found');
   }
 
-  return updatedContact;
+  return {
+    contact: rawResult.value,
+    isNew: Boolean(rawResult?.lastErrorObject?.upserted),
+  };
 };
