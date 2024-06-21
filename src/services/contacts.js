@@ -2,69 +2,52 @@ import { ContactsCollection } from '../db/models/Contact.js';
 import createHttpError from 'http-errors';
 import mongoose from 'mongoose';
 
-const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
-
 export const getAllContacts = async () => {
   const contacts = await ContactsCollection.find();
   return contacts;
 };
 
-export const getContactById = async (id) => {
-  if (!isValidObjectId(id)) {
-    throw createHttpError(400, 'Invalid contact ID');
-  }
-
-  const contact = await ContactsCollection.findById(id);
+export const getContactById = async (contactId) => {
+  const contact = await ContactsCollection.findById(contactId);
   return contact;
 };
 
 export const createContact = async (payload) => {
-  const { name, phoneNumber, email, isFavourite, contactType } = payload;
-
-  if (!name || !phoneNumber) {
-    throw createHttpError(400, 'Name and phone number are required');
-  }
-
-  const contact = new ContactsCollection({
-    name,
-    phoneNumber,
-    email,
-    isFavourite,
-    contactType,
-  });
-
-  await contact.save();
+  const contact = await ContactsCollection.create(payload);
   return contact;
 };
 
 export const deleteContact = async (contactId) => {
-  if (!isValidObjectId(contactId)) {
-    throw createHttpError(400, 'Invalid contact ID');
+  if (!mongoose.Types.ObjectId.isValid(contactId)) {
+    createHttpError(400, 'Contact not found');
+    return;
   }
+  const contact = await ContactsCollection.findOneAndDelete({
+    _id: contactId,
+  });
 
-  const deletedContact = await ContactsCollection.findByIdAndDelete(contactId);
-
-  if (!deletedContact) {
-    throw createHttpError(404, 'Contact not found');
-  }
-
-  return deletedContact;
+  return contact;
 };
 
-export const updateContact = async (contactId, payload) => {
-  if (!isValidObjectId(contactId)) {
-    throw createHttpError(400, 'Invalid contact ID');
+export const updateContact = async (contactId, payload, options = {}) => {
+  if (!mongoose.Types.ObjectId.isValid(contactId)) {
+    createHttpError(400, 'Contact not found');
+    return;
   }
-
-  const updatedContact = await ContactsCollection.findByIdAndUpdate(
-    contactId,
+  const rawResult = await ContactsCollection.findOneAndUpdate(
+    { _id: contactId },
     payload,
-    { new: true },
+    {
+      new: true,
+      includeResultMetadata: true,
+      ...options,
+    },
   );
 
-  if (!updatedContact) {
-    throw createHttpError(404, 'Contact not found');
-  }
+  if (!rawResult || !rawResult.value) return null;
 
-  return updatedContact;
+  return {
+    contact: rawResult.value,
+    isNew: Boolean(rawResult?.lastErrorObject?.upserted),
+  };
 };
