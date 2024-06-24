@@ -1,10 +1,29 @@
 import { ContactsCollection } from '../db/models/Contact.js';
 import createHttpError from 'http-errors';
 import mongoose from 'mongoose';
+import { calculatePaginationData } from '../utils/calculatePaginationData.js';
 
-export const getAllContacts = async () => {
-  const contacts = await ContactsCollection.find();
-  return contacts;
+export const getAllContacts = async ({ page, perPage } = {}) => {
+  const limit = perPage || 10;
+  const skip = (page - 1) * limit || 0;
+
+  const contactsQuery = ContactsCollection.find();
+
+  const [contacts, contactsCount] = await Promise.all([
+    contactsQuery.skip(skip).limit(limit).exec(),
+    ContactsCollection.countDocuments(),
+  ]);
+
+  const paginationData = calculatePaginationData(
+    contactsCount,
+    limit,
+    page || 1,
+  );
+
+  return {
+    data: contacts,
+    ...paginationData,
+  };
 };
 
 export const getContactById = async (contactId) => {
@@ -19,8 +38,7 @@ export const createContact = async (payload) => {
 
 export const deleteContact = async (contactId) => {
   if (!mongoose.Types.ObjectId.isValid(contactId)) {
-    createHttpError(400, 'Contact not found');
-    return;
+    throw createHttpError(400, 'Contact not found');
   }
   const contact = await ContactsCollection.findOneAndDelete({
     _id: contactId,
@@ -31,23 +49,21 @@ export const deleteContact = async (contactId) => {
 
 export const updateContact = async (contactId, payload, options = {}) => {
   if (!mongoose.Types.ObjectId.isValid(contactId)) {
-    createHttpError(400, 'Contact not found');
-    return;
+    throw createHttpError(400, 'Contact not found');
   }
   const rawResult = await ContactsCollection.findOneAndUpdate(
     { _id: contactId },
     payload,
     {
       new: true,
-      includeResultMetadata: true,
       ...options,
     },
   );
 
-  if (!rawResult || !rawResult.value) return null;
+  if (!rawResult) return null;
 
   return {
-    contact: rawResult.value,
+    contact: rawResult,
     isNew: Boolean(rawResult?.lastErrorObject?.upserted),
   };
 };
