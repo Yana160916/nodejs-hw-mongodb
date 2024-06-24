@@ -2,23 +2,52 @@ import { ContactsCollection } from '../db/models/Contact.js';
 import createHttpError from 'http-errors';
 import mongoose from 'mongoose';
 import { calculatePaginationData } from '../utils/calculatePaginationData.js';
+import { SORT_ORDER } from '../constants/index.js';
 
-export const getAllContacts = async ({ page, perPage } = {}) => {
-  const limit = perPage || 10;
-  const skip = (page - 1) * limit || 0;
+export const getAllContacts = async ({
+  page = 1,
+  perPage = 10,
+  sortOrder = SORT_ORDER.ASC,
+  sortBy = '_id',
+  filter = {},
+} = {}) => {
+  const limit = perPage;
+  const skip = (page - 1) * limit;
 
   const contactsQuery = ContactsCollection.find();
 
-  const [contacts, contactsCount] = await Promise.all([
-    contactsQuery.skip(skip).limit(limit).exec(),
-    ContactsCollection.countDocuments(),
+  if (filter.gender) {
+    contactsQuery.where('gender').equals(filter.gender);
+  }
+  if (filter.maxAge) {
+    contactsQuery.where('age').lte(filter.maxAge);
+  }
+  if (filter.minAge) {
+    contactsQuery.where('age').gte(filter.minAge);
+  }
+  if (filter.maxAvgMark) {
+    contactsQuery.where('avgMark').lte(filter.maxAvgMark);
+  }
+  if (filter.minAvgMark) {
+    contactsQuery.where('avgMark').gte(filter.minAvgMark);
+  }
+  if (filter.type) {
+    contactsQuery.where('contactType').equals(filter.type);
+  }
+  if (filter.isFavourite !== undefined) {
+    contactsQuery.where('isFavourite').equals(filter.isFavourite);
+  }
+
+  const [contactsCount, contacts] = await Promise.all([
+    ContactsCollection.find().merge(contactsQuery).countDocuments(),
+    contactsQuery
+      .skip(skip)
+      .limit(limit)
+      .sort({ [sortBy]: sortOrder })
+      .exec(),
   ]);
 
-  const paginationData = calculatePaginationData(
-    contactsCount,
-    limit,
-    page || 1,
-  );
+  const paginationData = calculatePaginationData(contactsCount, perPage, page);
 
   return {
     data: contacts,
