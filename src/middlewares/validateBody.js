@@ -1,15 +1,15 @@
-import { createContactSchema } from '../validation/contacts.js';
+import createHttpError from 'http-errors';
 
-export const validateCreateContact = (req, res, next) => {
-  const { error } = createContactSchema.validate(req.body, {
-    abortEarly: false,
-  });
-  if (error) {
-    return res.status(400).json({
-      status: 400,
-      message: 'Validation Error',
-      details: error.details.map((detail) => detail.message),
+export const validateBody = (schema) => async (req, res, next) => {
+  try {
+    await schema.validateAsync(req.body, {
+      abortEarly: false,
     });
+    next();
+  } catch (err) {
+    const error = createHttpError(400, 'Validation Error', {
+      details: err.details.map((detail) => detail.message),
+    });
+    next(error);
   }
-  next();
 };
