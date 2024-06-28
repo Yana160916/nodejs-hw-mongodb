@@ -6,7 +6,7 @@ import {
 } from '../services/auth.js';
 import { ONE_DAY } from '../constants/index.js';
 
-const setSessionCookies = (res, session) => {
+const setupSession = (res, session) => {
   res.cookie('refreshToken', session.refreshToken, {
     httpOnly: true,
     expires: new Date(Date.now() + ONE_DAY),
@@ -30,10 +30,17 @@ export const registerUserController = async (req, res) => {
 export const loginUserController = async (req, res) => {
   const session = await loginUser(req.body);
 
-  setSessionCookies(res, session);
+  res.cookie('refreshToken', session.refreshToken, {
+    httpOnly: true,
+    expires: new Date(Date.now() + ONE_DAY),
+  });
+  res.cookie('sessionId', session._id, {
+    httpOnly: true,
+    expires: new Date(Date.now() + ONE_DAY),
+  });
 
   res.json({
-    status: 'success',
+    status: 200,
     message: 'Successfully logged in an user!',
     data: {
       accessToken: session.accessToken,
@@ -58,10 +65,10 @@ export const refreshUserSessionController = async (req, res) => {
     refreshToken: req.cookies.refreshToken,
   });
 
-  setSessionCookies(res, session);
+  setupSession(res, session);
 
   res.json({
-    status: 'success',
+    status: 200,
     message: 'Successfully refreshed a session!',
     data: {
       accessToken: session.accessToken,
