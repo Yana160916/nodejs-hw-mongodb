@@ -16,7 +16,10 @@ export const getAllContactsController = async (req, res) => {
   const { sortBy, sortOrder } = parseSortParams(req.query);
   const filter = parseFilterParams(req.query);
 
+  const userId = req.user._id; // Отримуємо userId з req.user
+
   const contacts = await getAllContacts({
+    userId,
     page,
     perPage,
     sortBy,
@@ -33,17 +36,20 @@ export const getAllContactsController = async (req, res) => {
 
 export const getContactByIdController = async (req, res, next) => {
   const { contactId } = req.params;
+  const userId = req.user._id; // Отримуємо userId з req.user
 
   if (!mongoose.Types.ObjectId.isValid(contactId)) {
     next(createHttpError(404, 'Contact not found'));
     return;
   }
-  const contact = await getContactById(contactId);
+
+  const contact = await getContactById(contactId, userId);
 
   if (!contact) {
     next(createHttpError(404, 'Contact not found'));
     return;
   }
+
   res.status(200).json({
     status: 200,
     message: `Successfully found Contact with id ${contactId}!`,
@@ -52,7 +58,10 @@ export const getContactByIdController = async (req, res, next) => {
 };
 
 export const createContactController = async (req, res) => {
-  const contact = await createContact(req.body);
+  const userId = req.user._id; // Отримуємо userId з req.user
+
+  const contact = await createContact({ ...req.body, userId });
+
   res.status(201).json({
     status: 201,
     message: `Successfully created a contact!`,
@@ -62,17 +71,23 @@ export const createContactController = async (req, res) => {
 
 export const deleteContactController = async (req, res, next) => {
   const { contactId } = req.params;
-  const contact = await deleteContact(contactId);
+  const userId = req.user._id; // Отримуємо userId з req.user
+
+  const contact = await deleteContact(contactId, userId);
+
   if (!contact) {
     next(createHttpError(404, 'Contact not found'));
     return;
   }
+
   res.status(204).send();
 };
 
 export const patchContactController = async (req, res, next) => {
   const { contactId } = req.params;
-  const result = await updateContact(contactId, req.body);
+  const userId = req.user._id; // Отримуємо userId з req.user
+
+  const result = await updateContact(contactId, req.body, userId);
 
   if (!result) {
     next(createHttpError(404, 'Contact not found'));
