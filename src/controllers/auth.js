@@ -3,10 +3,10 @@ import {
   loginUser,
   logoutUser,
   refreshUsersSession,
+  requestResetToken,
+  resetPassword,
 } from '../services/auth.js';
 import { ONE_DAY } from '../constants/index.js';
-import { requestResetToken } from '../services/auth.js';
-import { resetPassword } from '../services/auth.js';
 
 const setupSession = (res, session) => {
   res.cookie('refreshToken', session.refreshToken, {
@@ -79,12 +79,23 @@ export const refreshUserSessionController = async (req, res) => {
 };
 
 export const requestResetEmailController = async (req, res) => {
-  await requestResetToken(req.body.email);
-  res.json({
-    message: 'Reset password email was successfully sent!',
-    status: 200,
-    data: {},
-  });
+  try {
+    await requestResetToken(req.body.email);
+    res.json({
+      status: 200,
+      message: 'Reset password email has been successfully sent.',
+      data: {},
+    });
+  } catch (error) {
+    if (error.status === 404) {
+      res.status(404).json({ status: 404, message: 'User not found!' });
+    } else {
+      res.status(500).json({
+        status: 500,
+        message: 'Failed to send the email, please try again later.',
+      });
+    }
+  }
 };
 
 export const resetPasswordController = async (req, res) => {

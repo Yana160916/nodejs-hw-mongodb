@@ -1,5 +1,4 @@
 import { Router } from 'express';
-
 import {
   getAllContactsController,
   getContactByIdController,
@@ -22,29 +21,20 @@ const router = Router();
 router.use(authenticate);
 
 router.get('/', ctrlWrapper(getAllContactsController));
-
 router.get('/:contactId', isValidId, ctrlWrapper(getContactByIdController));
-
 router.post(
   '/',
+  upload.single('photo'),
   validateBody(createContactSchema),
   ctrlWrapper(createContactController),
 );
-
 router.delete('/:contactId', isValidId, ctrlWrapper(deleteContactController));
-
 router.patch(
   '/:contactId',
   isValidId,
+  upload.single('photo'),
   validateBody(updateContactSchema),
   ctrlWrapper(patchContactController),
-);
-
-router.post('/contacts', upload.single('photo'), createContactController);
-router.patch(
-  '/contacts/:contactId',
-  upload.single('photo'),
-  patchContactController,
 );
 
 export default router;

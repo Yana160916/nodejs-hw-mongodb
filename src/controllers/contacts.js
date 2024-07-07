@@ -6,7 +6,6 @@ import {
   deleteContact,
 } from '../services/contacts.js';
 import createHttpError from 'http-errors';
-import mongoose from 'mongoose';
 import { parsePaginationParams } from '../utils/parsePaginationParams.js';
 import { parseSortParams } from '../utils/parseSortParams.js';
 import { parseFilterParams } from '../utils/parseFilterParams.js';
@@ -19,9 +18,7 @@ export const getAllContactsController = async (req, res, next) => {
     const { page, perPage } = parsePaginationParams(req.query);
     const { sortBy, sortOrder } = parseSortParams(req.query);
     const filter = parseFilterParams(req.query);
-
     const userId = req.user._id;
-
     const contacts = await getAllContacts({
       userId,
       page,
@@ -45,11 +42,6 @@ export const getContactByIdController = async (req, res, next) => {
   try {
     const { contactId } = req.params;
     const userId = req.user._id;
-
-    if (!mongoose.Types.ObjectId.isValid(contactId)) {
-      return next(createHttpError(404, 'Contact not found'));
-    }
-
     const contact = await getContactById(contactId, userId);
 
     if (!contact) {
@@ -69,8 +61,22 @@ export const getContactByIdController = async (req, res, next) => {
 export const createContactController = async (req, res, next) => {
   try {
     const userId = req.user._id;
+    const photo = req.file;
+    let photoUrl;
 
-    const contact = await createContact({ ...req.body, userId });
+    if (photo) {
+      if (env('ENABLE_CLOUDINARY') === 'true') {
+        photoUrl = await saveFileToCloudinary(photo);
+      } else {
+        photoUrl = await saveFileToUploadDir(photo);
+      }
+    }
+
+    const contact = await createContact({
+      ...req.body,
+      userId,
+      photo: photoUrl,
+    });
 
     res.status(201).json({
       status: 201,
@@ -86,7 +92,6 @@ export const deleteContactController = async (req, res, next) => {
   try {
     const { contactId } = req.params;
     const userId = req.user._id;
-
     const contact = await deleteContact(contactId, userId);
 
     if (!contact) {
@@ -103,7 +108,6 @@ export const patchContactController = async (req, res, next) => {
   try {
     const { contactId } = req.params;
     const photo = req.file;
-
     let photoUrl;
 
     if (photo) {
