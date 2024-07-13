@@ -104,7 +104,7 @@ export const requestResetToken = async (email) => {
     },
     env('JWT_SECRET'),
     {
-      expiresIn: '5m', // Срок действия токена 5 минут
+      expiresIn: '5m',
     },
   );
 
