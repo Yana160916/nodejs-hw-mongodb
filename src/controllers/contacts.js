@@ -86,7 +86,7 @@ export const createContactController = async (req, res, next) => {
       data: contact,
     });
   } catch (error) {
-    console.error(error); // Логирование ошибки
+    console.error(error);
     next(error);
   }
 };
