@@ -1,3 +1,4 @@
+import createHttpError from 'http-errors';
 import {
   getAllContacts,
   getContactById,
@@ -5,7 +6,6 @@ import {
   updateContact,
   deleteContact,
 } from '../services/contacts.js';
-import createHttpError from 'http-errors';
 import { parsePaginationParams } from '../utils/parsePaginationParams.js';
 import { parseSortParams } from '../utils/parseSortParams.js';
 import { parseFilterParams } from '../utils/parseFilterParams.js';
@@ -30,10 +30,11 @@ export const getAllContactsController = async (req, res, next) => {
 
     res.status(200).json({
       status: 200,
-      message: 'fully found contacts!',
+      message: 'Successfully found contacts!',
       data: contacts,
     });
   } catch (error) {
+    console.error(error); // Логирование ошибки
     next(error);
   }
 };
@@ -50,10 +51,11 @@ export const getContactByIdController = async (req, res, next) => {
 
     res.status(200).json({
       status: 200,
-      message: `Successfully found Contact with id ${contactId}!`,
+      message: `Successfully found contact with id ${contactId}!`,
       data: contact,
     });
   } catch (error) {
+    console.error(error); // Логирование ошибки
     next(error);
   }
 };
@@ -84,6 +86,7 @@ export const createContactController = async (req, res, next) => {
       data: contact,
     });
   } catch (error) {
+    console.error(error); // Логирование ошибки
     next(error);
   }
 };
@@ -100,6 +103,7 @@ export const deleteContactController = async (req, res, next) => {
 
     res.status(204).send();
   } catch (error) {
+    console.error(error); // Логирование ошибки
     next(error);
   }
 };
@@ -133,6 +137,7 @@ export const patchContactController = async (req, res, next) => {
       data: result.contact,
     });
   } catch (error) {
+    console.error(error); // Логирование ошибки
     next(error);
   }
 };
