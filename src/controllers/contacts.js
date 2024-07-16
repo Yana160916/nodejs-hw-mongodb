@@ -122,14 +122,16 @@ export const patchContactController = async (req, res, next) => {
       }
     }
 
+    const existingContact = await getContactById(contactId);
+
+    if (!existingContact) {
+      return next(createHttpError(404, 'Contact not found'));
+    }
+
     const result = await updateContact(contactId, {
       ...req.body,
       photo: photoUrl,
     });
-
-    if (!result) {
-      return next(createHttpError(404, 'Contact not found'));
-    }
 
     res.status(200).json({
       status: 200,
@@ -137,7 +139,7 @@ export const patchContactController = async (req, res, next) => {
       data: result.contact,
     });
   } catch (error) {
-    console.error(error); // Логирование ошибки
+    console.error(error);
     next(error);
   }
 };
