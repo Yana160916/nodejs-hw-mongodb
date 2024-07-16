@@ -70,7 +70,7 @@ export const deleteContact = async (contactId, userId) => {
 export const updateContact = async ({ contactId, userId, photo }) => {
   const result = ContactsCollection.findOneAndUpdate(
     { _id: contactId, userId },
-    { photo },
+    { ...photo },
     {
       new: true,
     },
