@@ -123,8 +123,8 @@ export const patchContactController = async (req, res, next) => {
     }
   }
 
-  const result = await updateContact(contactId, {
-    ...req.body,
+  const result = await updateContact({
+    contactId,
     userId,
     photo: photoUrl,
   });

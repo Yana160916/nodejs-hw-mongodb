@@ -67,25 +67,13 @@ export const deleteContact = async (contactId, userId) => {
   return contact;
 };
 
-export const updateContact = async (contactId, payload, options = {}) => {
-  if (!mongoose.Types.ObjectId.isValid(contactId)) {
-    createHttpError(400, 'Contact not found');
-    return;
-  }
-  const rawResult = await ContactsCollection.findOneAndUpdate(
-    { _id: contactId, userId: payload.userId },
-    payload,
+export const patchContact = async ({ contactId, userId, photo }) => {
+  const result = ContactsCollection.findOneAndUpdate(
+    { _id: contactId, userId },
+    { photo },
     {
       new: true,
-      includeResultMetadata: true,
-      ...options,
     },
   );
-
-  if (!rawResult || !rawResult.value) return null;
-
-  return {
-    contact: rawResult.value,
-    isNew: Boolean(rawResult?.lastErrorObject?.upserted),
-  };
+  return result;
 };
