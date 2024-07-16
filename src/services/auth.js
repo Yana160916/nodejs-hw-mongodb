@@ -14,7 +14,7 @@ import fs from 'node:fs/promises';
 import {
   getFullNameFromGoogleTokenPayload,
   validateCode,
-} from '../utils/googleOAuth2.js';
+} from '../utils/googleOAuthClient.js';
 
 const createSession = () => {
   const accessToken = randomBytes(30).toString('base64');
