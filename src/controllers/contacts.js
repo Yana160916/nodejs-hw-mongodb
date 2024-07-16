@@ -111,6 +111,7 @@ export const deleteContactController = async (req, res, next) => {
 export const patchContactController = async (req, res, next) => {
   try {
     const { contactId } = req.params;
+    const userId = req.user._id;
     const photo = req.file;
     let photoUrl;
 
@@ -124,6 +125,7 @@ export const patchContactController = async (req, res, next) => {
 
     const result = await updateContact(contactId, {
       ...req.body,
+      userId,
       photo: photoUrl,
     });
 
@@ -133,8 +135,8 @@ export const patchContactController = async (req, res, next) => {
 
     res.status(200).json({
       status: 200,
-      message: 'Successfully patched a contact!',
-      data: result.contact,
+      message: `Successfully patched a contact!`,
+      data: result,
     });
   } catch (error) {
     console.error(error); // Логирование ошибки

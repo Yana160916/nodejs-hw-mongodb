@@ -67,28 +67,14 @@ export const deleteContact = async (contactId, userId) => {
   return contact;
 };
 
-export const updateContact = async (
-  contactId,
-  payload,
-  userId,
-  options = {},
-) => {
+export const updateContact = async (contactId, payload) => {
   if (!mongoose.Types.ObjectId.isValid(contactId)) {
     throw createHttpError(400, 'Invalid contact ID');
   }
-  const rawResult = await ContactsCollection.findOneAndUpdate(
-    { _id: contactId, userId },
-    payload,
-    {
-      new: true,
-      ...options,
-    },
+  const contact = await ContactsCollection.findOneAndUpdate(
+    { _id: contactId, userId: payload.userId },
+    { $set: payload },
+    { new: true },
   );
-
-  if (!rawResult) return null;
-
-  return {
-    contact: rawResult,
-    isNew: Boolean(rawResult?.lastErrorObject?.upserted),
-  };
+  return contact;
 };
