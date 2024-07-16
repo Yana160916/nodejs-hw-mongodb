@@ -109,39 +109,34 @@ export const deleteContactController = async (req, res, next) => {
 };
 
 export const patchContactController = async (req, res, next) => {
-  try {
-    const { contactId } = req.params;
-    const { _id: userId } = req.user; // Отримання ID користувача з токена
-    const photo = req.file;
-    let photoUrl;
+  const { contactId } = req.params;
+  const userId = req.user._id;
+  const photo = req.file;
 
-    if (photo) {
-      if (env('ENABLE_CLOUDINARY') === 'true') {
-        photoUrl = await saveFileToCloudinary(photo);
-      } else {
-        photoUrl = await saveFileToUploadDir(photo);
-      }
+  let photoUrl;
+
+  if (photo) {
+    if (env('CLOUDINARY_ENABLE') === 'true') {
+      photoUrl = await saveFileToCloudinary(photo);
+    } else {
+      photoUrl = await saveFileToUploadDir(photo);
     }
-
-    // Перевірка існування контакту за його ID та userId
-    const existingContact = await getContactById(contactId, userId);
-
-    if (!existingContact) {
-      return next(createHttpError(404, 'Contact not found'));
-    }
-
-    const updatedContact = await updateContact(contactId, {
-      ...req.body,
-      photo: photoUrl,
-    });
-
-    res.status(200).json({
-      status: 200,
-      message: 'Successfully patched a contact!',
-      data: updatedContact,
-    });
-  } catch (error) {
-    console.error(error); // Логування помилок
-    next(error);
   }
+
+  const result = await updateContact(contactId, {
+    ...req.body,
+    userId,
+    photo: photoUrl,
+  });
+
+  if (!result) {
+    next(createHttpError(404, 'Contact not found'));
+    return;
+  }
+
+  res.status(200).json({
+    status: 200,
+    message: `Successfully patched a contact!`,
+    data: result.contact,
+  });
 };
