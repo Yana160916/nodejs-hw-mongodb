@@ -7,7 +7,7 @@ import {
   resetPassword,
 } from '../services/auth.js';
 import { ONE_DAY } from '../constants/index.js';
-import { generateAuthUrl } from '../utils/googleOAuth2.js';
+import { generateAuthUrl } from '../utils/googleOAuthClient.js';
 import { loginOrSignupWithGoogle } from '../services/auth.js';
 
 const setupSession = (res, session) => {
