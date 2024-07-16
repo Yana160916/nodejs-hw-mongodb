@@ -1,8 +1,8 @@
 tags:
   - Contacts
-summary: Create contact
+summary: Contacts
 operationId: createContact
-description: 'Create a contact'
+description: 'Create a contact with payload'
 security:
   - bearerAuth: []
 requestBody:
@@ -22,13 +22,13 @@ requestBody:
           phoneNumber:
             description: "Contact's phone number"
             type: number
-            example: 7777777
+            example: 77777777
           email:
             description: "Contact's email"
             type: string
-            example: example@email.com
+            example: example@gmail.com
           photo:
-            description: "Contact''s photo"
+            description: "Contact's photo"
             type: string
             format: binary
 responses:
@@ -51,6 +51,6 @@ responses:
               example: Successfully created a contact!
             data:
               type: object
-              $ref: ../../../components/schemas/contact.yaml
-  '404':
-    $ref: '../../components/responses/404.yaml'
+              $ref: ../../components/schemas/contact.yaml
+  '401':
+    $ref: ../../components/responses/404.yaml
