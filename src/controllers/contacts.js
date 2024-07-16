@@ -111,6 +111,7 @@ export const deleteContactController = async (req, res, next) => {
 export const patchContactController = async (req, res, next) => {
   try {
     const { contactId } = req.params;
+    const { _id: userId } = req.user; // Отримання ID користувача з токена
     const photo = req.file;
     let photoUrl;
 
@@ -122,13 +123,14 @@ export const patchContactController = async (req, res, next) => {
       }
     }
 
-    const existingContact = await getContactById(contactId);
+    // Перевірка існування контакту за його ID та userId
+    const existingContact = await getContactById(contactId, userId);
 
     if (!existingContact) {
       return next(createHttpError(404, 'Contact not found'));
     }
 
-    const result = await updateContact(contactId, {
+    const updatedContact = await updateContact(contactId, {
       ...req.body,
       photo: photoUrl,
     });
@@ -136,10 +138,10 @@ export const patchContactController = async (req, res, next) => {
     res.status(200).json({
       status: 200,
       message: 'Successfully patched a contact!',
-      data: result.contact,
+      data: updatedContact,
     });
   } catch (error) {
-    console.error(error);
+    console.error(error); // Логування помилок
     next(error);
   }
 };
