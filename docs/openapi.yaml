@@ -6,7 +6,7 @@ info:
   title: Contacts app
   license:
     name: Apache 2.0
-    url: <http://www.apache.org/licenses/LICENSE-2.0.html>
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
   description: >
     This is a documentation of contacts app
 tags:
@@ -15,8 +15,8 @@ tags:
   - name: Auth
     description: Auth operations.
 servers:
-  - url: <http://localhost:3000>
-  - url: <https://nodejs-hw-mongodb-4-zvum.onrender.com>
+  - url: http://localhost:3000
+  - url: https://nodejs-hw-mongodb-4-zvum.onrender.com
 paths:
   /contacts{id}:
     patch:
