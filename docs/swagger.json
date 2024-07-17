@@ -5,16 +5,16 @@
     "title": "Contacts app",
     "license": {
       "name": "Apache 2.0",
-      "url": "<http://www.apache.org/licenses/LICENSE-2.0.html>"
+      "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
     },
     "description": "This is a documentation of contacts app\n"
   },
   "servers": [
     {
-      "url": "<http://localhost:3000>"
+      "url": "http://localhost:3000"
     },
     {
-      "url": "<https://nodejs-hw-mongodb-4-zvum.onrender.com>"
+      "url": "https://nodejs-hw-mongodb-4-zvum.onrender.com"
     }
   ],
   "tags": [

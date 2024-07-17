@@ -34,6 +34,8 @@ export const setupServer = () => {
 
   app.use(contactsRouter);
 
+  app.use('/api-docs', swaggerDocs());
+
   app.use('*', notFoundHandler);
 
   app.use(errorHandler);
@@ -43,7 +45,4 @@ export const setupServer = () => {
   });
 
   app.use('/uploads', express.static(UPLOAD_DIR));
-
-  app.use('/uploads', express.static(UPLOAD_DIR));
-  app.use('/api-docs', swaggerDocs());
 };
