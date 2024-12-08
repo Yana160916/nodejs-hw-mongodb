@@ -6,7 +6,8 @@
   "main": "src/index.js",
   "scripts": {
     "lint": "eslint src/**/*.js",
-    "start": "node ./src/index.js",
+    "start": "node src/index.js",
+    "node-start": "node src/index.js",
     "dev": "nodemon src/index.js",
     "get-all": "node src/scripts/getAllContacts.js",
     "generate": "node src/scripts/generateContacts.js",
@@ -30,6 +31,7 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
+    "mongoose": "^8.4.1",
     "pino-http": "^10.1.0"
   }
 }
